@@ -25,6 +25,7 @@ class FishServer
       client.puts "Ready to start"
     end
     client.puts "Enter your name: "
+    sleep(0.1)
     client.read_nonblock(1000).chomp
   end
 
