@@ -44,7 +44,7 @@ class Game
   end
 
   def play_round(person)
-    turn = Turn.new(person, all_people)
+    turn = Turn.new(person, all_people, deck)
     turn.play
   end
 end
