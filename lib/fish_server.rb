@@ -44,7 +44,7 @@ class FishServer
   end
 
   def create_game_if_possible
-    if lobby.length > 3 # check this later
+    if lobby.length > 2
       game = Game.new(lobby[0], lobby[1], lobby[2])
       games[game] = lobby.shift(3)
       message_players_by_game(game, "Game is starting now")
@@ -77,7 +77,7 @@ class FishServer
   #   game.start
   #   until game.winner
   #     game.people.each do |person|
-  #       play_round(game)
+  #       play_round(game, person)
   #     end
   #   end
   #   puts "Winner: #{game.winner.name}"
