@@ -26,42 +26,64 @@ class MockClient
 end
 
 describe FishServer do
+  let(:clients) { [] }
+  let!(:server) { FishServer.new }
+
   before(:each) do
-    @clients = []
-    @server = FishServer.new
-    @server.start
-    client1 = MockClient.new(@server.port_number)
-    @clients.push(client1)
-    @server.accept_new_client
-    client1.capture_output
-    client1.provide_input("Player 1")
+    server.start
+    # client1 = MockClient.new(@server.port_number)
+    # @clients.push(client1)
+    # client1.provide_input("Player 1")
+    # @server.accept_new_client
+    # client1.capture_output
   end
 
   after(:each) do
-    @server.stop
-    @clients.each do |client|
+    server.stop
+    clients.each do |client|
       client.close
     end
   end
 
   it "is not listening on a port before it is started" do
-    @server.stop
-    expect { MockClient.new(@server.port_number) }.to raise_error(Errno::ECONNREFUSED)
+    server.stop
+    expect { MockClient.new(server.port_number) }.to raise_error(Errno::ECONNREFUSED)
   end
 
-  it "accepts new clients and starts a game if possible" do
-    @server.create_game_if_possible
-    expect(@server.games.count).to be 0
-    client2 = MockClient.new(@server.port_number)
-    @clients.push(client2)
-    @server.accept_new_client
+  context "#client_to_person" do
+    it "creates a person from a client with a name" do
+      client = MockClient.new(server.port_number)
+      clients.push(client)
+      person = server.client_to_person(client, "Player 2")
+      expect(person.name).to eq "Player 2"
+    end
+  end
+end
+
+describe FishServer do
+  let(:clients) { [] }
+  let!(:server) { FishServer.new }
+
+  before(:each) do
+    server.start
+    client1 = MockClient.new(server.port_number)
+    clients.push(client1)
+    client1.provide_input("Player 1")
+    server.accept_new_client
+  end
+
+  after(:each) do
+    server.stop
+    clients.each do |client|
+      client.close
+    end
+  end
+
+  it "accepts new clients" do
+    client2 = MockClient.new(server.port_number)
+    clients.push(client2)
     client2.provide_input("Player 2")
-    client3 = MockClient.new(@server.port_number)
-    @clients.push(client3)
-    @server.accept_new_client
-    client3.provide_input("Player 3")
-    @server.create_game_if_possible
-    puts @server.lobby.length
-    expect(@server.games.count).to eq 1
+    server.accept_new_client
+    expect(server.lobby.length).to eq 2
   end
 end
