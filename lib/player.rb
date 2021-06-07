@@ -9,7 +9,7 @@ class Player
 
   def take_cards(cards_won)
     @hand = cards_won.concat(@hand)
-    # check_for_books
+    check_for_books
   end
 
   def check_for_books
@@ -23,8 +23,10 @@ class Player
   end
 
   def ask_for(rank, player)
-    @hand.concat(player.lose_cards(rank))
+    cards_taken = player.lose_cards(rank)
+    @hand.concat(cards_taken)
     check_for_books
+    cards_taken.length
   end
 
   def lose_cards(rank)

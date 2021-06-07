@@ -1,15 +1,15 @@
 require_relative "player"
 require_relative "deck"
-# require_relative "turn"
+require_relative "turn"
 
 class Game
-  attr_reader :player1, :player2, :player3, :deck
+  attr_reader :player1, :player2, :player3, :deck, :all_people
 
-  def initialize(player1, player2, player3, players = [], num_of_players = 3) #players are instances of object Player
-    @player1 = player1
-    @player2 = player2
-    @player3 = player3
-    @players = [@player1, @player2, @player3]
+  def initialize(person1, person2, person3, people = [], num_of_players = 3)
+    @player1 = person1.player
+    @player2 = person2.player
+    @player3 = person3.player
+    @all_people = [person1, person2, person3]
   end
 
   def start
@@ -23,8 +23,8 @@ class Game
 
   def game_ended
     ended = true
-    @players.each do |player|
-      if player.hand.length != 0
+    all_people.each do |person|
+      if person.player.hand.length != 0
         ended = false
       end
     end
@@ -43,8 +43,8 @@ class Game
     end
   end
 
-  def play_round
-    turn = Turn.new(player1)
+  def play_round(person)
+    turn = Turn.new(person, all_people)
     turn.play
   end
 end

@@ -5,7 +5,7 @@ p1 = Person.new(0, "Stephen")
 p2 = Person.new(0, "Mary")
 p3 = Person.new(0, "Joe")
 
-game = Game.new(p1.player, p2.player, p3.player)
+game = Game.new(p1, p2, p3)
 game.start
 until game.winner
   puts game.play_round
