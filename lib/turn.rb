@@ -18,10 +18,12 @@ class Turn
   def what_player
     person.client.puts "Pick a player to ask (enter the number)"
     [all_people - [person]].flatten.each_with_index do |option, i|
-      person.client.puts "#{i}: #{option.name}"
+      # all_people.each_with_index do |option, i|
+      person.client.puts "#{i + 1}: #{option.name}"
     end
-    sleep(0.1)
-    player_pick = client.read_nonblock(1000).chomp.to_i
+    player_pick = read_message(client).to_i - 1
+  rescue IO::WaitReadable
+    ""
   end
 
   def what_card
@@ -29,8 +31,9 @@ class Turn
     person.player.hand.each_with_index do |card, i|
       person.client.puts "#{i}: #{card.rank} of #{card.suit}"
     end
-    sleep(0.1)
-    card_pick = client.read_nonblock(1000).chomp.to_i
+    card_pick = read_message(client).to_i - 1
+  rescue IO::WaitReadable
+    ""
   end
 
   def draw_if_needed(num_of_cards_given)
@@ -47,5 +50,15 @@ class Turn
 
   def show_message(message)
     all_people.each { |person| person.client.puts message }
+  end
+
+  def read_message(client, message = "")
+    while message == ""
+      sleep(0.1)
+      message = client.read_nonblock(1000).chomp
+    end
+    message
+  rescue IO::WaitReadable
+    ""
   end
 end

@@ -18,20 +18,32 @@ class FishServer
     @server = TCPServer.new(port_number)
   end
 
+  def read_message(client, message = "")
+    while message == ""
+      message = capture_output(client)
+    end
+    message
+  end
+
+  def capture_output(client)
+    sleep(0.1)
+    client.read_nonblock(1000).chomp # not gets which blocks
+  rescue IO::WaitReadable
+    ""
+  end
+
   def welcome_players_get_name(client)
     welcome = lobby.length < 3 ? "Wait for other players" : "Ready to start"
     client.puts "#{welcome}... Enter your name: "
-    sleep(0.1)
-    client.read_nonblock(1000).chomp
+    read_message(client)
   end
 
   def accept_new_client
     client = @server.accept_nonblock # returns a TCPSocket
     name = welcome_players_get_name(client)
-    puts "testing"
     person = Person.new(client, name)
-    puts person.name
     lobby.push(person) #push the person to the lobby
+    # lobby.each { |person| puts person.name }
   rescue IO::WaitReadable, Errno::EINTR
     # puts "No client to accept"
     sleep(0.1)
@@ -46,13 +58,6 @@ class FishServer
     end
   end
 
-  def read_message(game, person_index)
-    sleep(0.1)
-    games[game][person_index].client.read_nonblock(1000).chomp
-  rescue IO::WaitReadable
-    ""
-  end
-
   def message_players_by_game(game, message)
     games[game].each { |person| person.client.puts message }
   end
@@ -62,9 +67,10 @@ class FishServer
   end
 
   def play_full_game(game)
+    puts "started game"
     game.start
     until game.winner
-      game.people.each do |person|
+      game.all_people.each do |person|
         play_round(game, person)
       end
     end

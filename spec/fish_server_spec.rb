@@ -47,29 +47,18 @@ describe FishServer do
 end
 
 def make_clients_join(number_of_clients, server)
-  if number_of_clients > 0
+  number_of_clients.times do
     client1 = MockClient.new(server.port_number)
     clients.push(client1)
+    server.accept_new_client
+    # client1.capture_output
     client1.provide_input("Player 1")
-    server.accept_new_client
-  end
-  if number_of_clients > 1
-    client2 = MockClient.new(server.port_number)
-    clients.push(client2)
-    client2.provide_input("Player 2")
-    server.accept_new_client
-  end
-  if number_of_clients > 2
-    client3 = MockClient.new(server.port_number)
-    clients.push(client3)
-    client3.provide_input("Player 3")
-    server.accept_new_client
   end
 end
 
 describe FishServer do
   let(:clients) { [] }
-  let(:server) { FishServer.new }
+  let!(:server) { FishServer.new }
 
   before(:each) do
     server.start
@@ -85,6 +74,23 @@ describe FishServer do
   it "accepts new clients" do
     make_clients_join(2, server)
     expect(server.lobby.length).to eq 2
+  end
+
+  it "clients get welcome message" do
+    client1 = MockClient.new(server.port_number)
+    clients.push(client1)
+    server.accept_new_client
+    client1.provide_input("Player 1")
+    expect(client1.capture_output).to eq "Wait for other players... Enter your name: "
+  end
+
+  it "third client to join gets welcome message" do
+    make_clients_join(2, server)
+    client1 = MockClient.new(server.port_number)
+    clients.push(client1)
+    server.accept_new_client
+    client1.provide_input("Player 1")
+    expect(client1.capture_output).to eq "Ready to start... Enter your name: "
   end
 
   it "starts a game if possible" do
