@@ -27,7 +27,7 @@ end
 
 describe FishServer do
   let(:clients) { [] }
-  let!(:server) { FishServer.new }
+  let(:server) { FishServer.new }
 
   before(:each) do
     server.start
@@ -43,15 +43,6 @@ describe FishServer do
   it "is not listening on a port before it is started" do
     server.stop
     expect { MockClient.new(server.port_number) }.to raise_error(Errno::ECONNREFUSED)
-  end
-
-  context "#client_to_person" do
-    it "creates a person from a client with a name" do
-      client = MockClient.new(server.port_number)
-      clients.push(client)
-      person = server.client_to_person(client, "Player 2")
-      expect(person.name).to eq "Player 2"
-    end
   end
 end
 
@@ -78,7 +69,7 @@ end
 
 describe FishServer do
   let(:clients) { [] }
-  let!(:server) { FishServer.new }
+  let(:server) { FishServer.new }
 
   before(:each) do
     server.start

@@ -19,28 +19,22 @@ class FishServer
   end
 
   def welcome_players_get_name(client)
-    if lobby.length < 3
-      client.puts "Wait for other players"
-    else
-      client.puts "Ready to start"
-    end
-    client.puts "Enter your name: "
+    welcome = lobby.length < 3 ? "Wait for other players" : "Ready to start"
+    client.puts "#{welcome}... Enter your name: "
     sleep(0.1)
     client.read_nonblock(1000).chomp
-  end
-
-  def client_to_person(client, name)
-    Person.new(client, name)
   end
 
   def accept_new_client
     client = @server.accept_nonblock # returns a TCPSocket
     name = welcome_players_get_name(client)
-    person = client_to_person(client, name)
-    lobby.push(person) #push the person
+    puts "testing"
+    person = Person.new(client, name)
+    puts person.name
+    lobby.push(person) #push the person to the lobby
   rescue IO::WaitReadable, Errno::EINTR
-    puts "No client to accept"
-    # sleep(2)
+    # puts "No client to accept"
+    sleep(0.1)
   end
 
   def create_game_if_possible
@@ -60,28 +54,22 @@ class FishServer
   end
 
   def message_players_by_game(game, message)
-    # if game
     games[game].each { |person| person.client.puts message }
-    # else
-    #   lobby.each { |client| client.puts message }
-    # end
   end
 
   def play_round(game, person)
     game.play_round(person)
-    # output = game.play_round
-    # message_players_by_game(game, output)
   end
 
-  # def play_full_game(game)
-  #   game.start
-  #   until game.winner
-  #     game.people.each do |person|
-  #       play_round(game, person)
-  #     end
-  #   end
-  #   puts "Winner: #{game.winner.name}"
-  # end
+  def play_full_game(game)
+    game.start
+    until game.winner
+      game.people.each do |person|
+        play_round(game, person)
+      end
+    end
+    puts "Winner: #{game.winner.name}"
+  end
 
   def stop
     @server.close if @server
