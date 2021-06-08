@@ -2,6 +2,7 @@ require_relative "../lib/fish_server"
 require_relative "../lib/fish_game"
 require_relative "../lib/person"
 require_relative "../lib/turn"
+require_relative "../lib/fish_client"
 
 class MockClient
   attr_reader :socket
@@ -28,28 +29,24 @@ class MockClient
 end
 
 def make_clients_join(number_of_clients, server)
-  number_of_clients.times do
-    client1 = MockClient.new(server.port_number)
+  number_of_clients.times do |x|
+    client1 = FishClient.new(server.port_number)
     clients.push(client1)
-    client1.provide_input("Player 1")
+    client1.provide_input(["Mary", "Joe", "Stephen"][x])
     server.accept_new_client
-    client1.capture_output
+    # client1.capture_output
   end
 end
 
 describe "Turn" do
   let(:clients) { [] }
   let(:server) { FishServer.new }
-  # let(:game) { server.games[0] }
-  # let(:person) { game.all_people[0] }
-  # let(:turn) { Turn.new(person, game.all_people, game.deck) }
 
   before(:each) do
     server.start
     make_clients_join(3, server)
     @game = server.create_game_if_possible
-    @all_people = @game.all_people
-    @turn = Turn.new(@all_people[0], @all_people, @game.deck)
+    @turn = Turn.new(@game.all_people[0], @game.all_people, @game.deck)
   end
 
   after(:each) do
@@ -60,24 +57,67 @@ describe "Turn" do
   end
 
   context "#what_player" do
-    it "askes what player to fish from" do
-      @all_people[0].provide_input("1")
+    it "asks what player to fish from" do
+      clients[0].provide_input("1")
       player = @turn.what_player
-      puts "found player"
-      puts player
-      expect(player.hand.last.rank).to eq "3"
+      expect(player).to eq @game.all_people[1].player
+    end
+
+    it "asks what player to fish from" do
+      clients[0].provide_input("2")
+      player = @turn.what_player
+      expect(player).to eq @game.all_people[2].player
+    end
+
+    # xit "asks what player to fish from" do
+    #   @game.start
+    #   clients[0].provide_input("9")
+    #   player = @turn.what_player
+    #   clients[0].provide_input("2")
+    #   expect(player).to eq @game.all_people[2].player
+    # end
+  end
+
+  context "#what_card" do
+    it "askes what player to fish from" do
+      @game.start
+      clients[0].provide_input("2")
+      card = @turn.what_card
+      expect(card).to eq @turn.person.player.hand[1]
     end
   end
 
-  # it "asking a player for a card will return nothing if that player does not have the requested card" do
-  #   player1.ask_for("2", player2)
-  #   expect(player1.hand.last.rank).to eq "3"
+  # xcontext "#draw_if_needed" do
+  #   it "askes what player to fish from" do
+  #     @all_people[0].provide_input("1")
+  #     player = @turn.what_player
+  #     expect(player.hand.last.rank).to eq "3"
+  #   end
+  # end
+
+  # xcontext "#build_message" do
+  #   it "askes what player to fish from" do
+  #     player = @turn.what_player
+  #     puts "found player"
+  #     puts player
+  #     expect(player.hand.last.rank).to eq "3"
+  #   end
+  # end
+
+  # xcontext "#show_message" do
+  #   it "askes what player to fish from" do
+  #     @all_people[0].provide_input("1")
+  #     player = @turn.what_player
+  #     puts "found player"
+  #   end
+  # end
+
+  # xcontext "#play" do
+  #   it "askes what player to fish from" do
+  #     @all_people[0].provide_input("1")
+  #     player = @turn.what_player
+  #     puts player
+  #     expect(player.hand.last.rank).to eq "3"
+  #   end
   # end
 end
-
-#what_player
-#what_card
-#draw_if_needed
-#build_message
-#show_message
-#play

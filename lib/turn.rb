@@ -8,22 +8,19 @@ class Turn
   end
 
   def play
-    player_requested = what_player[0].player
     card_requested = what_card
-    cards_given = person.player.ask_for(card_requested, player_requested)
+    player_requested = what_player
+    cards_given = person.player.ask_for(card_requested.rank, player_requested)
     draw_if_needed(cards_given.length)
     build_message(player_requested, card_requested, cards_given)
   end
 
-  def what_player
+  def what_player(other_people = all_people - [person])
     person.client.puts "Pick a player to ask (enter the number)"
-    [all_people - [person]].flatten.each_with_index do |option, i|
+    other_people.each_with_index do |option, i|
       person.client.puts "#{i + 1}: #{option.name}"
     end
-    m = read_message(person.client).to_i - 1
-    puts(m)
-    # player_pick = [all_people - [person]][read_message(person.client).to_i - 1]
-    player_pick = [all_people - [person]].flatten[m]
+    other_people[read_message(person.client, other_people.length) - 1].player
   end
 
   def what_card
@@ -31,14 +28,11 @@ class Turn
     person.player.hand.each_with_index do |card, i|
       person.client.puts "#{i + 1}: #{card.rank} of #{card.suit}"
     end
-    m = read_message(person.client).to_i - 1
-    puts(m)
-    # card_pick = person.player.hand[read_message(person.client).to_i - 1]
-    card_pick = person.player.hand[m]
+    person.player.hand[read_message(person.client, person.player.hand.length) - 1]
   end
 
   def draw_if_needed(num_of_cards_given)
-    if num_of_cards_given == 0
+    if num_of_cards_given == 0 || person.player.hand.length == 0
       person.player.take_cards([deck.deal])
     end
   end
@@ -53,11 +47,16 @@ class Turn
     all_people.each { |person| person.client.puts message }
   end
 
-  def read_message(client, message = "")
-    while message == ""
+  def read_message(client, range, message = "")
+    allowed = ("1"..range.to_s).to_a
+    while message == "" # allowed.include?(message)
       message = capture_output(client)
     end
-    message
+    if allowed.include?(message)
+      message.to_i
+    else
+      what_player
+    end
   end
 
   def capture_output(client)
