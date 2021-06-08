@@ -18,6 +18,11 @@ describe "Turn" do
     end
   end
 
+  # it "" do
+  #   turn.what_player()
+  #   expect(player1.hand.last.rank).to eq "3"
+  # end
+
   # it "asking a player for a card will return nothing if that player does not have the requested card" do
   #   player1.ask_for("2", player2)
   #   expect(player1.hand.last.rank).to eq "3"

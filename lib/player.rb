@@ -22,13 +22,6 @@ class Player
     end
   end
 
-  def ask_for(rank, player)
-    cards_taken = player.lose_cards(rank)
-    @hand.concat(cards_taken)
-    check_for_books
-    cards_taken.length
-  end
-
   def lose_cards(rank)
     outgoing = []
     @hand.each do |my_card|
@@ -38,6 +31,13 @@ class Player
     end
     @hand -= outgoing
     outgoing
+  end
+
+  def ask_for(rank, player)
+    cards_taken = player.lose_cards(rank)
+    @hand.concat(cards_taken)
+    check_for_books
+    cards_taken
   end
 
   def show_hand

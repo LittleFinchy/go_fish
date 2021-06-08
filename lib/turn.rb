@@ -8,7 +8,7 @@ class Turn
   end
 
   def play
-    player_requested = what_player
+    player_requested = what_player[0].player
     card_requested = what_card
     cards_given = person.player.ask_for(card_requested, player_requested)
     draw_if_needed(cards_given.length)
@@ -18,22 +18,17 @@ class Turn
   def what_player
     person.client.puts "Pick a player to ask (enter the number)"
     [all_people - [person]].flatten.each_with_index do |option, i|
-      # all_people.each_with_index do |option, i|
       person.client.puts "#{i + 1}: #{option.name}"
     end
-    player_pick = read_message(client).to_i - 1
-  rescue IO::WaitReadable
-    ""
+    player_pick = [all_people - [person]][read_message(person.client).to_i - 1]
   end
 
   def what_card
     person.client.puts "Pick a card to ask for (enter the number)"
     person.player.hand.each_with_index do |card, i|
-      person.client.puts "#{i}: #{card.rank} of #{card.suit}"
+      person.client.puts "#{i + 1}: #{card.rank} of #{card.suit}"
     end
-    card_pick = read_message(client).to_i - 1
-  rescue IO::WaitReadable
-    ""
+    card_pick = person.player.hand[read_message(person.client).to_i - 1]
   end
 
   def draw_if_needed(num_of_cards_given)
@@ -43,8 +38,8 @@ class Turn
   end
 
   def build_message(player_requested, card_requested, cards_given)
-    message = "#{person.name} asked #{player_requested.name} for a #{card_requested}"
-    message += "\nNumber of cards given: #{cards_given}"
+    message = "#{person.name} asked #{player_requested.name} for a #{card_requested.show}"
+    message += "\nNumber of cards given: #{cards_given.length}"
     show_message(message)
   end
 
@@ -54,10 +49,14 @@ class Turn
 
   def read_message(client, message = "")
     while message == ""
-      sleep(0.1)
-      message = client.read_nonblock(1000).chomp
+      message = capture_output(client)
     end
     message
+  end
+
+  def capture_output(client)
+    sleep(0.1)
+    client.read_nonblock(1000).chomp # not gets which blocks
   rescue IO::WaitReadable
     ""
   end

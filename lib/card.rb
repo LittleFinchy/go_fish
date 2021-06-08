@@ -8,7 +8,7 @@ class Card
   end
 
   def show
-    puts "#{rank} of #{suit}"
+    "#{rank} of #{suit}"
   end
 
   def ==(other_card)
