@@ -50,9 +50,9 @@ def make_clients_join(number_of_clients, server)
   number_of_clients.times do
     client1 = MockClient.new(server.port_number)
     clients.push(client1)
-    server.accept_new_client
-    # client1.capture_output
     client1.provide_input("Player 1")
+    server.accept_new_client
+    client1.capture_output
   end
 end
 
@@ -79,18 +79,18 @@ describe FishServer do
   it "clients get welcome message" do
     client1 = MockClient.new(server.port_number)
     clients.push(client1)
-    server.accept_new_client
     client1.provide_input("Player 1")
+    server.accept_new_client
     expect(client1.capture_output).to eq "Wait for other players... Enter your name: "
   end
 
   it "third client to join gets welcome message" do
     make_clients_join(2, server)
-    client1 = MockClient.new(server.port_number)
-    clients.push(client1)
+    client4 = MockClient.new(server.port_number)
+    clients.push(client4)
+    client4.provide_input("Player 4")
     server.accept_new_client
-    client1.provide_input("Player 1")
-    expect(client1.capture_output).to eq "Ready to start... Enter your name: "
+    expect(client4.capture_output).to eq "Ready to start... Enter your name: "
   end
 
   it "starts a game if possible" do

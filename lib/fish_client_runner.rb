@@ -15,5 +15,7 @@ while true
     output = client.capture_output
   end
   print output
-  client.provide_input(gets.chomp)
+  if output.include?(":")
+    client.provide_input(gets.chomp)
+  end
 end

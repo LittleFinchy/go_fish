@@ -20,7 +20,10 @@ class Turn
     [all_people - [person]].flatten.each_with_index do |option, i|
       person.client.puts "#{i + 1}: #{option.name}"
     end
-    player_pick = [all_people - [person]][read_message(person.client).to_i - 1]
+    m = read_message(person.client).to_i - 1
+    puts(m)
+    # player_pick = [all_people - [person]][read_message(person.client).to_i - 1]
+    player_pick = [all_people - [person]].flatten[m]
   end
 
   def what_card
@@ -28,7 +31,10 @@ class Turn
     person.player.hand.each_with_index do |card, i|
       person.client.puts "#{i + 1}: #{card.rank} of #{card.suit}"
     end
-    card_pick = person.player.hand[read_message(person.client).to_i - 1]
+    m = read_message(person.client).to_i - 1
+    puts(m)
+    # card_pick = person.player.hand[read_message(person.client).to_i - 1]
+    card_pick = person.player.hand[m]
   end
 
   def draw_if_needed(num_of_cards_given)
@@ -38,8 +44,8 @@ class Turn
   end
 
   def build_message(player_requested, card_requested, cards_given)
-    message = "#{person.name} asked #{player_requested.name} for a #{card_requested.show}"
-    message += "\nNumber of cards given: #{cards_given.length}"
+    message = "#{person.name} asked #{player_requested.name} for a #{card_requested.rank}"
+    message += "\nNumber of cards given -- #{cards_given.length}"
     show_message(message)
   end
 

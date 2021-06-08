@@ -33,7 +33,7 @@ class FishServer
   end
 
   def welcome_players_get_name(client)
-    welcome = lobby.length < 3 ? "Wait for other players" : "Ready to start"
+    welcome = lobby.length < 2 ? "Wait for other players" : "Ready to start"
     client.puts "#{welcome}... Enter your name: "
     read_message(client)
   end
@@ -43,7 +43,6 @@ class FishServer
     name = welcome_players_get_name(client)
     person = Person.new(client, name)
     lobby.push(person) #push the person to the lobby
-    # lobby.each { |person| puts person.name }
   rescue IO::WaitReadable, Errno::EINTR
     # puts "No client to accept"
     sleep(0.1)
@@ -67,7 +66,6 @@ class FishServer
   end
 
   def play_full_game(game)
-    puts "started game"
     game.start
     until game.winner
       game.all_people.each do |person|
